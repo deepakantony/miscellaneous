@@ -1,0 +1,6 @@
+project(opengl_qt)
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
+add_executable(rotating_cube rotating_cube.cpp RotatingCubeWidget.cpp)
+target_link_libraries(rotating_cube ${QT_LIBRARIES})
