@@ -5,7 +5,6 @@
 
 class RotatingCubeWidget : 
 public QGLWidget {
-  Q_OBJECT
  public:
   
 
