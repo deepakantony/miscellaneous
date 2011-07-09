@@ -3,19 +3,6 @@
 
 #include <QGLWidget>
 
-class GLCube : public QObject {
- public:
-  GLCube(GLfloat size = 1.0) {
-    this->size = size;
-  }
-  GLCube(){
-  }
- private:
-  GLfloat size;
-  QColor 
-};
-
-
 class RotatingCubeWidget : public QGLWidget {
  public:
   RotatingCubeWidget(QWidget *parent = 0);
