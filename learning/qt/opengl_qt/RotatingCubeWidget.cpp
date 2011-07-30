@@ -1,109 +1,47 @@
 #include "RotatingCubeWidget.h"
 #include <QtOpenGL>
 
-bool drawSquare(float size) {
-  if(size < 0)
-    return false;
-
-  glBegin(GL_QUADS);
-  glVertex3f(-size, -size,  size);
-  glVertex3f( size, -size,  size);
-  glVertex3f( size,  size,  size);
-  glVertex3f(-size,  size,  size);
-  glEnd();
-
-  return true;
-}
-
-bool drawCube(float size) {
-  if(size < 0)
-    return false;
-
-  glPushMatrix();
-  //front
-  glTranslatef(0.f, 0.f, size);
-  glColor3f(0.8f, 0.2f, 0.2f);
-  drawSquare(size);
-  glPopMatrix();
-
-  glPushMatrix();
-  //right side
-  glTranslatef(size, 0.f, 0.f);
-  glRotatef(90.f, 0.f, 1.f, 0.f);
-  glColor3f(0.2f, 0.7f, 0.2f);
-  drawSquare(size);
-  glPopMatrix();
-
-  glPushMatrix();
-  //back
-  glTranslatef(0.f, 0.f, -size);
-  glRotatef(180.f, 0.f, 1.f, 0.f);
-  glColor3f(0.2f, 0.2f, 0.7f);
-  drawSquare(size);
-  glPopMatrix();
-
-  glPushMatrix();
-  //left side
-  glTranslatef(-size, 0.f, 0.f);
-  glRotatef(90.f, 0.f, -1.f, 0.f);
-  glColor3f(0.2f, 0.7f, 0.7f);
-  drawSquare(size);
-  glPopMatrix();
-
-  glPushMatrix();
-  //top
-  glTranslatef(0.f, size, 0.f);
-  glRotatef(90.f, -1.f, 0.f, 0.f);
-  glColor3f(0.7f, 0.2f, 0.7f);
-  drawSquare(size);
-  glPopMatrix();
-
-  glPushMatrix();
-  //bottom
-  glTranslatef(0.f, -size, 0.f);
-  glRotatef(90.f, 1.f, 0.f, 0.f);
-  glColor3f(0.7f, 0.2f, 0.7f);
-  drawSquare(size);
-  glPopMatrix();
-
-  return true;
-}
-
 bool drawCubeDirect(float size) {
   if(size < 0.f)
     return false;
 
   glBegin(GL_QUADS);
   //front 
+  glColor3f(0.7f, 0.2f, 0.2f);
   glVertex3f(-size, -size,  size);
   glVertex3f( size, -size,  size);
   glVertex3f( size,  size,  size);
   glVertex3f(-size,  size,  size);
   //back
-  glVertex3f(-size, -size,  size);
-  glVertex3f( size, -size,  size);
-  glVertex3f( size,  size,  size);
-  glVertex3f(-size,  size,  size);
+  glColor3f(0.7f, 0.2f, 0.7f);
+  glVertex3f( size, -size, -size);
+  glVertex3f( size,  size, -size);
+  glVertex3f(-size,  size, -size);
+  glVertex3f(-size, -size, -size);
   //right
-  glVertex3f(-size, -size,  size);
+  glColor3f(0.2f, 0.2f, 0.7f);
   glVertex3f( size, -size,  size);
+  glVertex3f( size, -size, -size);
+  glVertex3f( size,  size, -size);
   glVertex3f( size,  size,  size);
-  glVertex3f(-size,  size,  size);
   //left
+  glColor3f(0.2f, 0.7f, 0.7f);
+  glVertex3f(-size, -size, -size);
   glVertex3f(-size, -size,  size);
-  glVertex3f( size, -size,  size);
-  glVertex3f( size,  size,  size);
   glVertex3f(-size,  size,  size);
+  glVertex3f(-size,  size, -size);
   //top
-  glVertex3f(-size, -size,  size);
-  glVertex3f( size, -size,  size);
+  glColor3f(0.2f, 0.7f, 0.2f);
   glVertex3f( size,  size,  size);
+  glVertex3f( size,  size, -size);
+  glVertex3f(-size,  size, -size);
   glVertex3f(-size,  size,  size);
   //bottom
-  glVertex3f(-size, -size,  size);
+  glColor3f(0.7f, 0.7f, 0.2f);
   glVertex3f( size, -size,  size);
-  glVertex3f( size,  size,  size);
-  glVertex3f(-size,  size,  size);
+  glVertex3f(-size, -size,  size);
+  glVertex3f(-size, -size, -size);
+  glVertex3f( size, -size, -size);
   
   glEnd();
 
@@ -115,16 +53,29 @@ RotatingCubeWidget::RotatingCubeWidget(QWidget *parent)
   :QGLWidget(parent)
 {
   setWindowTitle("Rotating cube");
+
+  resetRotation();
+  resetEnablers();
+
+  dxRot = dyRot = dzRot = 40.f/60.f;
+
+  startTimer(1000/60);
 }
 
-RotatingCubeWidget::~RotatingCubeWidget() {
+void RotatingCubeWidget::resetRotation() {
+  // No rotation
+  xRot = yRot = zRot = 0;
+}
+
+void RotatingCubeWidget::resetEnablers() {
+  enablex = enabley = enablez = enableAnimation = false;
 }
 
 void RotatingCubeWidget::initializeGL() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   //  glOrtho(-.5,.5,-.5,.5,-.5,.5);
-  glFrustum(-.5, .5, -.5, .5, .5, -1.0);
+  glFrustum(-.5, .5, -.5, .5, .5, 2.0);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -138,10 +89,55 @@ void RotatingCubeWidget::paintGL() {
   glColor3f(0.7f, 0.2f, 0.2f);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glRotatef(180.f, 0.f, 1.f, 0.f);
-  drawCube(0.25);
+  glTranslatef(0.f, 0.f, -1.0);
+
+  glPushMatrix();
+  glRotatef(xRot, 1.f, 0.f, 0.f);
+  glRotatef(yRot, 0.f, 1.f, 0.f);
+  glRotatef(zRot, 0.f, 0.f, 1.f);
+  drawCubeDirect(0.25);
+  glPopMatrix();
 }
 
 void RotatingCubeWidget::resizeGL(int width, int height) {
 }
 
+void RotatingCubeWidget::keyPressEvent(QKeyEvent *event) {
+  if(event->key() == Qt::Key_A)
+    enableAnimation = enableAnimation ? false:true;
+  if(event->key() == Qt::Key_X)
+    enablex = enablex ? false:true;
+  if(event->key() == Qt::Key_Y)
+    enabley = enabley ? false:true;
+  if(event->key() == Qt::Key_Z)
+    enablez = enablez ? false:true;
+  if(event->key() == Qt::Key_R) {
+    resetEnablers();
+    resetRotation();
+  }
+}
+
+void RotatingCubeWidget::timerEvent(QTimerEvent *event) {
+  updateRotation();
+  updateGL();
+}
+
+void RotatingCubeWidget::updateRotation() {
+  if(enableAnimation) {
+    if(enablex) {
+      xRot += dxRot;
+      if( xRot > 360 )
+	xRot -= 360;
+    }
+    if(enabley) {
+      yRot += dyRot;
+      if(yRot > 360 )
+	yRot -= 360;
+    }
+    if(enablez) {
+      zRot += dzRot;
+      if(zRot > 360)
+	zRot -= 360;
+    }
+  }
+}
