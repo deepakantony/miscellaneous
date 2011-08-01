@@ -10,22 +10,31 @@ class RotatingCubeWidget : public QGLWidget {
  public:
   RotatingCubeWidget(QWidget *parent = 0);
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL(int width, int height);
+  virtual void initializeGL();
+  //virtual void paintGL();
+  virtual void paintEvent(QPaintEvent *event);
+  virtual void resizeGL(int width, int height);
 
   virtual void keyPressEvent(QKeyEvent *event);
   virtual void timerEvent(QTimerEvent *event);
   void updateRotation();
 
+ protected:
+  void animate();
+
  private:
   void resetRotation();
   void resetEnablers();
+
+  void drawInstructions(QPainter*);
 
  private:
   float xRot, yRot, zRot;
   float dxRot, dyRot, dzRot; // step value
   bool enablex, enabley, enablez, enableAnimation;
+
+  // variables for fps calculations
+  int frames, refreshTime, fps, timeNow, timeLast, ;
 };
 
 

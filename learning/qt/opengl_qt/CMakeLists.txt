@@ -13,5 +13,13 @@ QT4_WRAP_CPP(MOCFILES ${MOCHEADER})
 
 #add_definitions(${QT_DEFINITIONS})
 
-add_executable(rotating_cube rotating_cube.cpp RotatingCubeWidget.cpp ${MOCFILES})
-target_link_libraries(rotating_cube ${QT_LIBRARIES} ${OPENGL_LIBRARIES})
+add_executable(rotating_cube 
+rotating_cube.cpp 
+RotatingCubeWidget.cpp 
+cube.h
+${MOCFILES}
+)
+target_link_libraries(rotating_cube 
+${QT_LIBRARIES} 
+${OPENGL_LIBRARIES}
+)
