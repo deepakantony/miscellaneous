@@ -16,7 +16,7 @@ QT4_WRAP_CPP(MOCFILES ${MOCHEADER})
 add_executable(rotating_cube 
 rotating_cube.cpp 
 RotatingCubeWidget.cpp 
-cube.h
+cube.cpp
 ${MOCFILES}
 )
 target_link_libraries(rotating_cube 

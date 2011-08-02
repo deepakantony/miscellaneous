@@ -1,10 +1,11 @@
 #include "cube.h"
+#include <QtOpenGL>
 
 Cube::Cube(float size) 
   :size(size) {
 }
 
-bool Cube::glDraw() {
+bool Cube::glDraw() const {
   if(size < 0.f)
     return false;
 
