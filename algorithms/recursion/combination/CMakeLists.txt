@@ -1,0 +1,5 @@
+CMAKE_MINIMUM_VERSION (2.6)
+PROJECT (combination)
+ADD_LIBRARY (CombinationLib Combination.cpp)
+ADD_EXECUTABLE (combination CombinationMain.cpp)
+LINK_TARGET_LIBRARIES (combination CombinationLib)
