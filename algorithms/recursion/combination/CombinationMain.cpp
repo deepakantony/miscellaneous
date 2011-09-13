@@ -25,5 +25,7 @@ int main(int argc, char *argv[])
 		ostream_iterator<string>(cout, ",")
 		);
 
+	cout << endl;
+
 	return 0;
 }
