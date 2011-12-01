@@ -34,7 +34,7 @@ class RotatingCubeWidget : public QGLWidget {
   bool enablex, enabley, enablez, enableAnimation;
 
   // variables for fps calculations
-  int frames, refreshTime, fps, timeNow, timeLast, ;
+  int frames, refreshTime, fps, timeNow, timeLast;
 };
 
 
