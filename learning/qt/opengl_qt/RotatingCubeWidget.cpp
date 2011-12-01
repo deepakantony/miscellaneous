@@ -72,7 +72,8 @@ void RotatingCubeWidget::paintEvent(QPaintEvent *event) {
   ++frames;
 
   if(frames > 10) { // update every 10 frames
-    fps = frames*CLOCKS_PER_SEC/(timeNow-timeLast);
+	if ((timeNow-timeLast) > 0)
+		fps = frames*CLOCKS_PER_SEC/(timeNow-timeLast);
     timeLast = timeNow;
     frames = 0;
   }
