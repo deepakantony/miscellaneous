@@ -58,19 +58,23 @@
 # 
 
 import sys
+import time
 
 # This function will create a set of all the substrings for a given string
-def setOfSubstrings(inStr):
-    subStrSet = set()
+def setOfSubstrings(inStr, subStrSet):
+    print inStr
     inStrLen = len(inStr)
     for i in xrange(inStrLen):
         for j in xrange(i, inStrLen):
             subStrSet.add(inStr[i:j+1])
+           
+# The above function is not memory efficient; lets try something different
+def lexicallySortedItem():
+    pass
 
-    return subStrSet
-
-# Main function
+# The following main is a memory optimized
 def main(argv):
+    start = time.time()
     inp = sys.stdin
     out = sys.stdout
     if len(argv) > 1:
@@ -85,28 +89,53 @@ def main(argv):
     nStrings = int(inp.readline())
     # Then the strings
     strings = []
-    subStrings = set([])
     for x in xrange(nStrings):
         curStr = inp.readline().rstrip()
         strings.append(curStr)
-        subStrings = subStrings.union(setOfSubstrings(curStr))
-        
 
     # queries
     nQueries = int(inp.readline())
     queries = []
     for x in xrange(nQueries):
         queries.append(int(inp.readline()))
-        
+    sortedQueries = list(queries)
+    
+    print "Total Executaion time %f secs" % (time.time()-start)
+
+# Main function
+def main_non_memory(argv):
+    inp = sys.stdin
+    out = sys.stdout
+    if len(argv) > 1:
+        try:
+            inp = open(argv[1], 'r')
+            if len(argv) > 2:
+                out = open(argv[2], 'w')
+        except IOError as err:
+            print err
+
+    # First get the number of strings
+    nStrings = int(inp.readline())
+    # Then the strings
+    subStrings = set([])
+    for x in xrange(nStrings):
+        curStr = inp.readline().rstrip()
+        setOfSubstrings(curStr, subStrings)
+
     # Lexically sort the list of all substrings
     subStringList = list(subStrings)
     subStringList.sort()
-    subStringListLen = len(subStringList)
-    for q in queries:
-        if q > subStringListLen:
+    subStringListLen = len(subStringList)        
+
+    # queries
+    nQueries = int(inp.readline())
+    for x in xrange(nQueries):
+        curQuery = int(inp.readline())
+        
+        if curQuery > subStringListLen:
             print >> out, "INVALID"
         else:
-            print >> out, subStringList[q-1]
+            print >> out, subStringList[curQuery - 1]
 
 if __name__ == "__main__":
     main(sys.argv)
