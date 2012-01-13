@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Problem originally found @ 
+#  Problem originally found @ 
 # http://www.interviewstreet.com/recruit/challenges/solve/view/4e1491425cf10/4efa210eb70ac
 #
 # Find Strings (25 points)
