@@ -65,6 +65,67 @@ import time
 # for all the substrings. This way we can save space by not storing whole 
 # strings
 
+# I tried using the regular list and tuple; using quicksort to sort and another
+# O(n) to remove duplicates. It takes too long. I'll try a self-balancing
+# binary tree now. Hopefully it should be fast.
+
+class Node:
+    def __init__(self, val):
+        self.left = None
+        self.right = None
+        self.key = val
+
+class AVLSubString:
+    def __init__(self):
+        self.subStrings = None
+        self.inpString = None
+        self.length = 0
+
+    def __getitem__(self, key):
+        (start, end) = self.findFromIndex(key)
+        return self.inpString[start:end]
+
+    def append(self, inStr):
+        curLen = len(self.inpString)
+        self.inpString += inStr
+        newLen = len(self.inpString)
+        for i in xrange(curLen, newLen):
+            for j in xrange(i, newLen):
+                self.insert( (i, j+1) ) # insert a tuple of start and end indices
+                self.length += 1
+
+    def eq(self, key1, key2):
+        len1 = key1[1] - key1[0]
+        len2 = key2[1] - key2[0]
+        if len1 != len2:
+            return False
+
+        index1 = key1[0]
+        index2 = key2[0]
+        while index1 < key1[1]:
+            if self.inpString[index1] != self.inpString[index2]:
+                return False
+            index1 += 1
+            index2 += 1
+            
+        return True
+
+    def lt(self, key1, key2)
+        len1 = key1[1] - key1[0]
+        len2 = key2[1] - key2[0]
+
+        if len1 != len2:
+            return False
+
+        index1 = key1[0]
+        index2 = key2[0]
+        while index1 < key1[1]:
+            if self.inpString[index1] != self.inpString[index2]:
+                return False
+            
+        return True
+
+
 class SubStringListIndex:
     def __init__(self):
         self.subStringList = []
