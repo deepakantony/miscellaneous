@@ -65,11 +65,6 @@ import time
 # for all the substrings. This way we can save space by not storing whole 
 # strings
 
-def listSwap(L, index1, index2):
-    temp = L[index1]
-    L[index1] = L[index2]
-    L[index2] = temp
-
 class SubStringListIndex:
     def __init__(self):
         self.subStringList = []
@@ -82,27 +77,28 @@ class SubStringListIndex:
 
     # quicksort
     def quicksort(self, left, right):
-        pivot = left
-        if left >= right: return
-        lastIndex = right
-        left += 1
-        while True:
-            while left < right and self[left] < self[pivot]:
-                left += 1
-            while left <= right and self[right] > self[pivot]:
-                right -= 1
-            if left < right:
-                listSwap(self.subStringList, left, right)
-                left += 1
-                right -= 1
-            else:
-                break
+        if left < right:
+            pivot = left + (right-left)/2
+            store = self.partition(left, right, pivot)
+            self.quicksort(left, store-1)
+            self.quicksort(store+1, right)
 
-        listSwap(self.subStringList, pivot, right)
+    def listSwap(self, index1, index2):
+        temp = self.subStringList[index1]
+        self.subStringList[index1] = self.subStringList[index2]
+        self.subStringList[index2] = temp
 
-        self.quicksort(pivot, right-1)
-        self.quicksort(right+1, lastIndex)
+    def partition(self, left, right, pivot):
+        self.listSwap(right, pivot)
+        store = left
+        for index in xrange(left, right):
+            if self[index] > self[right]:
+                self.listSwap(index, store)
+                store += 1
+        self.listSwap(store, right)
+        return store
 
+        
     # add a string to the list and append all it's substrings to the substring 
     # list
     def append(self, inStr):
@@ -114,11 +110,32 @@ class SubStringListIndex:
                 self.subStringList.append( (stringListLen-1, i, j+1) )
                 self.length += 1
 
+    def removeDups(self):
+        self.subStringList2 = []
+        ssListLen = len(self.subStringList)
+        curItem = ""
+        topItem = ""
+        tempLength = 0
+        for index in xrange(ssListLen-1, -1, -1):
+            curItem = self[index]
+            tempStore = self.subStringList.pop()
+            if curItem != topItem:
+                self.subStringList2.append(tempStore)
+                topItem = curItem
+                tempLength += 1
+                
+        self.length = tempLength
 
     # index operator
     def __getitem__(self, key):
-        (stringIndex, start, end) = self.subStringList[key]
-        return self.stringList[stringIndex][start:end]
+        if self.length <= 0:
+            return None
+        if len(self.subStringList) > 0:
+            (stringIndex, start, end) = self.subStringList[key]
+            return self.stringList[stringIndex][start:end]
+        else:
+            (stringIndex, start, end) = self.subStringList2[key]
+            return self.stringList[stringIndex][start:end]
 
     # string representation
     def __str__(self):
@@ -145,11 +162,11 @@ def main(argv):
         curStr = inp.readline().rstrip()
         subStringList.append(curStr)
 
-    print subStringList
-        
     # sort the list
     subStringList.sort()
-    print subStringList
+
+    # remove duplicates and sort it ascending
+    subStringList.removeDups()
 
     # queries
     nQueries = int(inp.readline())
@@ -158,7 +175,7 @@ def main(argv):
         if query > subStringList.length:
             print "INVALID"
         else:
-            print subStringList[query+1]
+            print subStringList[query-1]
 
     if len(argv) > 1 :
         print "Total Executaion time %f secs" % (time.time()-start)
