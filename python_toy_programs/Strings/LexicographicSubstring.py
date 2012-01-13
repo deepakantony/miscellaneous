@@ -97,7 +97,6 @@ class SubStringListIndex:
                 store += 1
         self.listSwap(store, right)
         return store
-
         
     # add a string to the list and append all it's substrings to the substring 
     # list
