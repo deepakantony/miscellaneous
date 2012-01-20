@@ -50,6 +50,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -67,6 +68,9 @@ struct GridLocation
 		long double ydiff = y - loc.y;
 		return (long long) (floor(sqrt(xdiff*xdiff + ydiff*ydiff) + 0.5d));
 	}
+	long long chebyshevDistance(const GridLocation &loc) const {
+		return max(abs(x-loc.x), abs(y-loc.y));
+	}
 	long double squareDist(long double &locX, long double &locY) const {
 		long double xdiff = x - locX;
 		long double ydiff = y - locY;
@@ -76,6 +80,37 @@ struct GridLocation
 		cout << x << " " << y << endl;
 	}
 };
+
+void calculateAllDistances(GridLocation *locations, int nHouses)
+{
+	long long *distances = new long long[nHouses];
+
+	for(int house = 0; house < nHouses; house++)
+	{
+		distances[house] = 0;
+		for(int curHouse = 0; curHouse < house; curHouse++)
+		{
+			long long distance = locations[house].distance(locations[curHouse]);
+			distances[curHouse] += distance;
+			distances[house] += distance;
+		}
+	}
+
+	for(int house = 0; house < nHouses; house++)
+	{
+		locations[house].print();
+		cout << distances[house] << endl;
+	}
+}
+
+void distanceToAllLocs(GridLocation *locations, int nHouses, GridLocation loc)
+{
+	for(int house = 0; house < nHouses; house++)
+	{
+		locations[house].print();
+		cout << locations[house].chebyshevDistance(loc) << endl;
+	}
+}
 
 int main()
 {
@@ -97,9 +132,6 @@ int main()
 		locations[house].setxy(x,y);
 	}
 
-	cout << "Averages: ";
-	cout << avgX << " " << avgY << endl;
-
 	// Find the Meeting house
 	GridLocation meetingHouse = locations[0];
 	long double smallestSqDist = locations[0].squareDist(avgX, avgY);
@@ -113,12 +145,16 @@ int main()
 		}
 	}
 
-	meetingHouse.print();
+//	meetingHouse.print();
 
 	// Find the total distance to the meeting house
 	long long totalDistance = 0;
 	for( int house = 0; house < nHouses; house++ )
-		totalDistance += locations[house].distance(meetingHouse);
+		totalDistance += locations[house].chebyshevDistance(meetingHouse);
 
 	cout << totalDistance << endl;
+	//calculateAllDistances(locations, nHouses);
+	//distanceToAllLocs(locations, nHouses, meetingHouse);
+
+	return 0;
 }
