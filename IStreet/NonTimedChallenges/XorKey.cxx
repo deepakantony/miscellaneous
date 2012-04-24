@@ -1,241 +1,195 @@
-#include <iostream>
-#include <string>
-#include <cassert>
+// XOR key
+// 
+// Xorq has invented an encryption algorithm which uses bitwise XOR 
+// operations extensively. This encryption algorithm uses a sequence of 
+// non-negative integers x1, x2, ... xn  as key. To implement this algorithm 
+// efficiently, Xorq needs to find maximum value for (a xor xj)  for given 
+// integers a,p and q such that p<=j<=q. Help Xorq to implement this 
+// function.
+// 
+// Input
+// First line of input contains a single integer T (1<=T<=6). T test cases 
+// follow.
+// 
+// First line of each test case contains two integers N and Q separated by a 
+// single space (1<= N<=100,000; 1<=Q<= 50,000).  Next line contains N 
+// integers x1, x2, ... xn separated by a single space (0<=xi< 215). Each of 
+// next Q lines describe a query which consists of three integers ai,pi and 
+// qi (0<=ai< 215, 1<=pi<=qi<= N).
+// 
+// Output
+// For each query, print the maximum value for (ai xor xj) such that pi<=j<=qi  
+// in a single line.
+// 
+// Sample Input
+// 1
+// 15 8
+// 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+// 10 6 10
+// 1023 7 7
+// 33 5 8
+// 182 5 10
+// 181 1 13
+// 5 10 15
+// 99 8 9
+// 33 10 14
+// 
+// Sample Output
+// 13
+// 1016
+// 41
+// 191
+// 191
+// 15
+// 107
+// 47
+// 
+// Explanation
+// First Query (10 6 10): x6 xor 10 = 12, x7 xor 10 = 13, x8 xor 10 = 2, 
+// x9 xor 10 = 3, x10 xor 10 = 0, therefore answer for this query is 13.
+// Second Query (1023 7 7): x7 xor 1023 = 1016, therefore answer for this 
+// query is 1016.
+// Third Query (33 5 8): x5 xor 33 = 36, x6 xor 33 = 39, x7 xor 33 = 38, 
+// x8 xor 33 = 41, therefore answer for this query is 41.
+// Fourth Query (182 5 10): x5 xor 182 = 179, x6 xor 182 = 176, 
+// x7 xor 182 = 177, x8 xor 182 = 190, x9 xor 182 = 191, x10 xor 182 = 188, 
+// therefore answer for this query is 191.
+
+// The solution is to build a binary tree with height 15, where the decision
+// of going left or right is based on whether the bit at that height is 1/0.
+// Store all the indices which belong to that bit depth in that node. You can
+// do a binary search for the required interval using this tree.
+
 #include <cstdio>
+#include <cstdlib>
+#include <vector>
 #include <algorithm>
-#include <unordered_set>
+#include <iostream>
 
 using namespace std;
-
 typedef unsigned short ushort;
 
-ushort flipShort(ushort n)
-{ // flips bits and 0's out last bit
-	return (~n) & (0xFFFF >> 1);
-}
-
+bool isNthBitOn(ushort n, int pos) { return ((n & (1 << pos)) != 0); }
 ushort flipBit(ushort n, int bitPosition)
 { // flip the bit at given position
 	return ((~n) & (1<<bitPosition)) | ((n) & (~(1<<bitPosition)));
 }
 
-string decToBinary(ushort n)
-{ // convert decimal to binary
-	string binary;
-	while(n > 0)
-	{
-		binary += '0'+n%2;
-		n /= 2;
-	}
-	while(binary.size() < 16)
-		binary += '0';
-	reverse(binary.begin(), binary.end());
-	return binary;
+void printVec(vector<int> vec, ushort *keyList){
+	printf("( ");
+	for(auto entry: vec)
+		printf("[%d, %d] ", entry, keyList[entry]);
+	printf(" )\n");
 }
 
-bool isNthBitOn(ushort n, int bitPosition) {
-	return n & (1<<bitPosition);
-}
 
-struct SNode {
-	SNode *left, *right;
-	int low, high, mid;
-	ushort *sortedSet;
-	int setSize;
-
-	SNode(SNode *l, SNode *r, int _low, int _high, ushort *_list) 
-		: left(l), right(r), low(_low), high(_high), mid((_low+_high)/2) {
-		unordered_set<ushort> s;
-		for(int index = low; index <= high; ++index)
-			s.insert(_list[index]);
-		setSize = s.size();
-		sortedSet = new ushort[setSize];
-		int index = 0;
-		for(auto it = s.begin(); it != s.end(); ++it)
-			sortedSet[index++] = *it;
-		sort(sortedSet, sortedSet+setSize);
-	}
-
-	~SNode() {
-		delete []sortedSet;
-	}
-
-	void print() {
-		printf("[%d, %d] - ", low, high);
-		for(int index = 0; index < setSize; ++index)
-			printf("%d, ", sortedSet[index]);
-		printf("\n");
-	}
-
-	ushort getMaxXor(ushort key) {
-		if(setSize == 1)
-			return (sortedSet[0] ^ key);
-		if(setSize == 2)
-			return max((sortedSet[0] ^ key), (sortedSet[1] ^ key));
-
-		int first =0, last = setSize-1;
-		for(int bit = 15; bit >= 0 && first < last; bit--) {
-			if(isNthBitOn(key, bit))
-				last = findUpperBound(first, last, bit);
-			else
-				first = findLowerBound(first,last, bit);
-			/*printf("****** [%d %d] ****** [", first, last);
-			for(int i = first; i <= last; i++)
-				printf("%d, ", sortedSet[i]);
-			printf("] - %s\n", decToBinary(key).c_str());
-			*/
-		}
-		//printf("****** [%d %d] ******", first, last);
-		return sortedSet[first] ^ key;
-	}
-
-	int findLowerBound(int first, int last, int bitPos) {
-		//	printf("Finding lower bound\n");
-		int curLow = first;
-		while(first <= last) {
-			int mid = (first+last)/2;
-			//	printf("*** %d %d %s ***\n", sortedSet[mid], bitPos, decToBinary(sortedSet[mid]).c_str());
-			if(isNthBitOn(sortedSet[mid], bitPos)) {
-
-				curLow = mid;
-				last = mid - 1;
-			}
-			else {
-				first = mid + 1;
-			}
-		}
-		return curLow;
-	}
-
-	int findUpperBound(int first, int last, int bitPos) {
-		//printf("Finding upper bound\n");
-		int curHigh = last;
-		while(first <= last) {
-			int mid = (first+last)/2;
-			//printf("*** %d %d %s ***\n", sortedSet[mid], bitPos, decToBinary(sortedSet[mid]).c_str());
-			if(isNthBitOn(sortedSet[mid], bitPos)) {
-				curHigh = mid;
-				last = mid - 1;
-			}
-			else {
-				first = mid+1;
-			}
-		}
-		return curHigh;
-	}
-
+struct BNode {
+	BNode(BNode *l, BNode *r) 
+		: left(l), right(r) {}
+	BNode *left, *right;
+	vector<int> indexVec;
 };
+struct BTree {
+	BTree(ushort *_keyList, int _nKeys)
+		:keyList(_keyList), nKeys(_nKeys){ 
+		root = new BNode(0,0);
 
-class SegmentTree {
-public:
-	SegmentTree(ushort *_keyList, int _nKeys) 
-		: keyList(_keyList), nKeys(_nKeys) {
-		root = recurseCreateTree(0, nKeys-1);
-	}
-
-	~SegmentTree() {
-		recurseDeleteTree(root);
-	}
-
-	ushort getMaxXor(ushort key, int l, int h) {
-		return getMaxXor(root, key, l, h);
-	}
-
-	void print() { print(root); }
-private:
-	void recurseDeleteTree(SNode *cur) {
-		if(cur) {
-			recurseDeleteTree(cur->left);
-			recurseDeleteTree(cur->right);
-			delete cur;
+		for(int key = 0; key < nKeys; key++) {
+			BNode *cur = root;
+			for(int bitPos = 14; bitPos >= 0; bitPos--) {
+				if(isNthBitOn(keyList[key], bitPos)) {
+					if(!cur->right) cur->right = new BNode(0,0);
+					cur = cur->right;
+					cur->indexVec.push_back(key);
+				}
+				else {
+					if(!cur->left) cur->left = new BNode (0,0);
+					cur = cur->left;
+					cur->indexVec.push_back(key);
+				}
+			}
 		}
 	}
 
-	SNode *recurseCreateTree(int low, int high) {
-		if(low == high)
-			return new SNode(0, 0, low, high, keyList);
-		else {
-			int mid = (low + high)/2;
-			SNode *l = recurseCreateTree(low, mid);
-			SNode *r = recurseCreateTree(mid+1, high);
-			return new SNode(l, r, low, high, keyList);
+	ushort getMaxXor(ushort key, int low, int high) {
+		ushort maxXor = flipBit(~key, 15);
+		BNode *cur = root;
+
+		for(int bitPos = 14; bitPos >= 0; bitPos--) {		
+			if(isNthBitOn(maxXor, bitPos)) {
+				if(cur->right && findInterval(cur->right, low, high)) {
+					cur = cur->right;
+				}
+				else {
+					maxXor = flipBit(maxXor, bitPos);
+					cur = cur->left;
+				}
+			}
+			else {
+				if(cur->left && findInterval(cur->left, low, high)) {
+					cur = cur->left;
+				}
+				else {
+					maxXor = flipBit(maxXor, bitPos);
+					cur = cur->right;
+				}
+			}
 		}
+
+		return maxXor ^ key;
 	}
 
-	void print(SNode *cur) { 
-		if(cur) {
-			cur->print(); print(cur->left); print(cur->right);
+	bool findInterval(BNode *cur, int low, int high) {
+		if(!cur) return false;
+		int l = 0, r = cur->indexVec.size()-1;
+		while(l <= r) {
+			int mid = (l+r)/2;
+			int midInd = cur->indexVec[mid];
+			if(midInd >= low && midInd <= high)
+				return true;
+			if(midInd > high)
+				r = mid-1;
+			else // if(midInd < low)
+				l = mid+1;
 		}
-	}
-	
-	ushort getMaxXor(SNode *cur, ushort key, int l, int h) {
-		if(!cur) return 0;
-		if(cur->low >= l && cur->high <= h) {
-			/*ushort res = cur->getMaxXor(key);
-			printf("(%d %d %d)\n", res, key, res^key);
-			cur->print();*/
-			return cur->getMaxXor(key);
-		}
-		if(cur->low > cur->mid) 
-			return getMaxXor(cur->right, key, l, h);
-		else if(cur->high <= cur->mid)
-			return getMaxXor(cur->left, key, l, h);
-		ushort lMax = getMaxXor(cur->left, key, l, h);
-		ushort rMax = getMaxXor(cur->right, key, l, h);
-		return max(lMax, rMax);
+		return false;
 	}
 
-	SNode *root;
+	void print() { print(root, "ROOT"); }
+	void print(BNode *cur, const char *msg) {
+		if(!cur) return;
+		printf("%s\n", msg);
+		printVec(cur->indexVec, keyList);
+		print(cur->left, "LEFT");
+		print(cur->right, "RIGHT");
+	}
+	BNode *root;
 	ushort *keyList;
 	int nKeys;
 };
 
+void solveXORKey() {
+	int nTests; scanf(" %d", &nTests);
+	ushort *keyList = new ushort[100001];
+	for(int test = 0; test < nTests; test++) {
+		int nKeys, nQuery; scanf(" %d %d", &nKeys, &nQuery);
 
-void unitTest()
-{
-	// flipShort function
-	ushort ten = 10, three = 3, two =2, four = 4;
-	assert(flipShort((ushort)10) != ~ten);
-	assert(flipShort(10) == (~ten & (0x7FFF)));
-	assert(flipShort(three) == (ushort)32764);
+		for(int index = 0; index < nKeys; ++index)
+			scanf(" %hu", &keyList[index]);
 
-	// flipBit function
-	assert(flipBit(4, 3) == (ushort)12);
-	assert(flipBit(0, 10) == (ushort)(1<<10));
-
-	// decToBinary functionxs
-	assert(decToBinary(2) == string("0000000000000010"));
-	assert(decToBinary(32764) == string("0111111111111100"));
-}
-
-void solveXorKey() 
-{
-	int nTests, nKeys, nQueries;
-	scanf(" %d", &nTests);
-	scanf(" %d %d", &nKeys, &nQueries);
-	for(int test = 0; test < nTests; ++test) {
-		ushort *keyList = new ushort[nKeys];
-
-		for(int key = 0; key < nKeys; ++key)
-			scanf(" %hu", &keyList[key]);
-		SegmentTree *tree = new SegmentTree(keyList, nKeys);
-		ushort key;
-		int low, high;
-		//tree->print();
-		for(int query = 0; query < nQueries; ++query) {
+		BTree *tree = new BTree(keyList, nKeys);
+		ushort key; int low, high;
+		for(int query = 0; query < nQuery; ++query) {
 			scanf(" %hu %d %d", &key, &low, &high);
-
 			printf("%hu\n", tree->getMaxXor(key, low-1, high-1));
 		}
-		delete tree;
-		delete [] keyList;
+		//delete tree;
+
 	}
 }
 
-int main(int argc, char *argv[])
-{
-//	unitTest();
-	solveXorKey();
+int main(int argc, char *argv[]) {
+	solveXORKey();
 	return 0;
 }
-			
+
