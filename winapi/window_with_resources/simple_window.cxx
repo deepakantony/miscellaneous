@@ -3,9 +3,12 @@
 
 const char g_szClassName[] = "myWindowClass";
 
-#define ID_FILE_EXIT    9001
-#define ID_STUFF_GO     9002
-#define ID_STUFF_ABOUT  9003
+#define ID_FILE_EXIT        9001
+#define ID_STUFF_MODELESS   9002
+#define ID_STUFF_GO         9003
+#define ID_STUFF_ABOUT      9004
+
+HWND g_modelessHwnd;
 
 BOOL CALLBACK AboutProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
@@ -24,6 +27,29 @@ BOOL CALLBACK AboutProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
             EndDialog( hwnd, IDCANCEL );
             break;
         }
+        break;
+    default:
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL CALLBACK ModelessDlgProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
+{
+    switch ( msg )
+    {
+    case WM_COMMAND:
+        switch ( LOWORD( wParam ) )
+        {
+        case IDC_BUTTON1:
+            MessageBox( hwnd, "Yes man", "Yes", MB_OK | MB_ICONINFORMATION );
+            break;
+        case IDC_BUTTON2:
+            MessageBox( hwnd, "Baby's first word", "No", MB_OK | MB_ICONINFORMATION );
+            break;
+        }
+        break;
     default:
         return FALSE;
     }
@@ -41,6 +67,7 @@ HMENU GetMenuBar()
     AppendMenu( hmenu, MF_STRING | MF_POPUP, ( UINT ) hfilepopup, "&File" );
 
     HMENU hstuffpopup = CreateMenu();
+    AppendMenu( hstuffpopup, MF_STRING, ID_STUFF_MODELESS, "&Modeless Dialog" );
     AppendMenu( hstuffpopup, MF_STRING, ID_STUFF_GO, "&Go" );
     AppendMenu( hstuffpopup, MF_STRING, ID_STUFF_ABOUT, "&About" );
     AppendMenu( hmenu, MF_STRING | MF_POPUP, ( UINT ) hstuffpopup, "&Stuff" );
@@ -66,6 +93,19 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
         case ID_FILE_EXIT:
             PostMessage( hwnd, WM_CLOSE, 0, 0 );
             break;
+        case ID_STUFF_MODELESS:
+        {
+            g_modelessHwnd = CreateDialog( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG2 ), hwnd, ModelessDlgProc );
+            if ( g_modelessHwnd != NULL )
+            {
+                ShowWindow( g_modelessHwnd, SW_SHOW );
+            }
+            else
+            {
+                MessageBox( hwnd, "Failed to open modeless dialog box!", "Error!", MB_OK | MB_ICONERROR );
+            }
+            break;
+        }
         case ID_STUFF_GO:
             MessageBox( hwnd, "Stuff Go Menu Dialog Box", "GO", MB_OK | MB_ICONINFORMATION );
             break;
@@ -82,6 +122,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam )
         DestroyWindow( hwnd );
         break;
     case WM_DESTROY:
+        DestroyWindow( g_modelessHwnd );
         PostQuitMessage( 0 );
         break;
     default:
@@ -129,6 +170,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
     while ( GetMessage( &msg, NULL, 0, 0 ) > 0 )
     {
+        if ( IsDialogMessage( g_modelessHwnd, &msg ) )
+        {
+            continue;
+        }
         TranslateMessage( &msg );
         DispatchMessage( &msg );
     }
