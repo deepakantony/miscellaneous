@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1C5F2C20-0B4F-40D6-BD55-9CA15BCD4CE3</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ToDoList</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>517D57D4AC681355E8B7B63FFC387E6A542E469C</key>
+		<string>github.com:deepakantony/miscellaneous.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Tutorials/ios8/ToDoList/ToDoList/ToDoList.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>517D57D4AC681355E8B7B63FFC387E6A542E469C</key>
+		<string>../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:deepakantony/miscellaneous.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>517D57D4AC681355E8B7B63FFC387E6A542E469C</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>517D57D4AC681355E8B7B63FFC387E6A542E469C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>miscellaneous</string>
+		</dict>
+	</array>
+</dict>
+</plist>
