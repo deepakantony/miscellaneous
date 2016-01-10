@@ -22,7 +22,7 @@ int space_count( char *str, int len )
 	return count;
 }
 
-void replace_space( char *str, int len, int buf_len )
+void replace_space_bad_version( char *str, int len, int buf_len )
 {
 	// validate size
 	int nspaces = space_count(str, len);
@@ -39,6 +39,23 @@ void replace_space( char *str, int len, int buf_len )
 			len += 2;
 		}
 	str[len] = 0;
+}
+
+void replace_space( char *str, int len, int buf_len )
+{
+	int nspaces = space_count(str, len);
+	int newlen = nspaces*2 + len;
+	assert( newlen < buf_len );
+
+	str[newlen] = 0;
+   
+	for( int i = len - 1, j = newlen - 1; i >= 0; --i )
+		if( str[i] == ' ' ) {
+			str[j--] = '0';
+			str[j--] = '2';
+			str[j--] = '%';
+		}
+		else str[j--] = str[i];
 }
 
 int main()
