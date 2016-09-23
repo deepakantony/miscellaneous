@@ -10,7 +10,7 @@ public class Percolation {
 	private WeightedQuickUnionUF uf_no_vb; // no virtual bottom
 	//private QuickFindUF uf;
 	private int n;
-	private int grid[];
+	private boolean grid[];
 
 	public Percolation(int n)               // create n-by-n grid, with all sites blocked
 	{
@@ -20,10 +20,10 @@ public class Percolation {
 		this.uf_no_vb = new WeightedQuickUnionUF(n*n+1);
 		//this.uf = new QuickFindUF(n*n+2);
 		this.n = n;
-		this.grid = new int[n*n];
+		this.grid = new boolean[n*n];
 		
 		for(int i = 0; i < n*n; ++i )
-			this.grid[i] = 0;
+			this.grid[i] = false;
 
 		// Connect virtual top/bottom
 		//		for( int i = 0; i < n; ++i )
@@ -47,7 +47,7 @@ public class Percolation {
 		if( i < n && isOpen(i+1, j) ) ufref.union(getID(i,j), getID(i+1, j));
 		if( j > 1 && isOpen(i,j-1) ) ufref.union(getID(i,j), getID(i, j-1));
 		if( j < n && isOpen(i, j+1) ) ufref.union(getID(i,j), getID(i, j+1));
-		this.grid[getID(i,j)] = 1;
+		this.grid[getID(i,j)] = true;
 	}
 
 	public void open(int i, int j)          // open site (row i, column j) if it is not open already
@@ -68,7 +68,7 @@ public class Percolation {
 	public boolean isOpen(int i, int j)     // is site (row i, column j) open?
 	{
 		verify(i,j);
-		return grid[getID(i,j)] == 1;
+		return grid[getID(i,j)];
 	}
 
 	public boolean isFull(int i, int j)     // is site (row i, column j) full?
